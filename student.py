@@ -33,17 +33,17 @@ class InstructLlamaStudent(object):
     def response(self, history: History, question: str, incorrect_solution: str):
         response = ""
         messages = history.to_delimited_string("<EOM>\n\n")
-        prompt = STUDENT_PROMPT.replace("(STUDENT PERSONA)", STUDENT_PERSONA) \
+        prompt = STUDENT_PROMPT.replace("{STUDENT PERSONA}", STUDENT_PERSONA) \
                                .replace("(STUDENT SOLUTION)", incorrect_solution) \
                                .replace("(MATH PROBLEM)", question) \
-                               .replace("(STUDENT NAME)", STUDENT_NAME) \
+                               .replace("{STUDENT NAME}", STUDENT_NAME) \
                                .replace("(DIALOG HISTORY)", messages)
         errors_counter = 0
         done = False
         while not done:
             try:
                 response = ollama.chat(model="llama3", messages=[{'content': prompt, 'role': 'user'}])
-                response = response["choices"][0]["text"].strip()
+                response = response["message"]["content"].strip()
                 done = True
             except Exception as e:
                 print(e)

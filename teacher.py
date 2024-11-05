@@ -20,19 +20,21 @@ class InstructLlamaTeacher(object):
     def response(self, history: History, student_question: str, incorrect_solution: str):
         response = ""
         messages = history.to_delimited_string("<EOM>\n\n")
-        prompt = TEACHER_BASE.replace("(STUDENT QUESTION)", student_question) \
-                                .replace("(INCORRECT SOLUTION)", incorrect_solution) \
+        prompt = TEACHER_BASE.replace("{problem}", student_question) \
+                                .replace("{ground_truth}", incorrect_solution) \
                                 .replace("(DIALOG HISTORY)", messages)
+        print("Prompt:", prompt)
         errors_counter = 0
         max_retries = 5  # Set a maximum number of retries
         done = False
         while not done and errors_counter < max_retries:
             try:
                 response = ollama.chat(model="llama3", messages=[{'content': prompt, 'role': 'user'}])
-                response = response["choices"][0]["text"].strip()
+                print("Raw response:", response)
+                response = response["message"]["content"].strip()
                 done = True
             except Exception as e:
-                print(e)
+                print("Error occurred:", e)
                 errors_counter += 1
                 time.sleep(1)
         if not done:
@@ -40,3 +42,4 @@ class InstructLlamaTeacher(object):
             return "Error: Unable to generate a response."
         utterance = response.replace("Teacher:", "").replace("Llama Tutor:", "").replace("<EOM>", "").strip("\n")
         return utterance
+    
