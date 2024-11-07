@@ -1,15 +1,16 @@
-# teacher.py
 import ollama
 import time
 
 from roles import Roles
 from history import History
 
-TEACHER_BASE = """A tutor and a student work together to solve the following math word problem. 
+TEACHER_NAME = "Tutor Ollama"
+TEACHER_PERSONA = f"{TEACHER_NAME} The teacher is polite, helpful, professional, on topic, and factually correct. The teacher guides to the correct answer, not revealing the answer to soon."
+
+TEACHER_BASE = """ TEACHER Persona: {TEACHER_PERSONA}
 Math problem: {problem}
 The correct solution is as follows:
 {ground_truth}
-The following is a conversation with a teacher. The teacher is polite, helpful, professional, on topic, and factually correct.
 """
 
 class InstructLlamaTeacher(object):
@@ -22,7 +23,8 @@ class InstructLlamaTeacher(object):
         messages = history.to_delimited_string("<EOM>\n\n")
         prompt = TEACHER_BASE.replace("{problem}", student_question) \
                                 .replace("{ground_truth}", incorrect_solution) \
-                                .replace("(DIALOG HISTORY)", messages)
+                                .replace("(DIALOG HISTORY)", messages) \
+                                .replace("{TEACHER_PERSONA}", TEACHER_PERSONA)
         print("Prompt:", prompt)
         errors_counter = 0
         max_retries = 5  # Set a maximum number of retries

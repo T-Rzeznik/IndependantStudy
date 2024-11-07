@@ -51,6 +51,3 @@ class InstructLlamaStudent(object):
                 time.sleep(1)
         utterance = response.replace("Student:", "").replace(STUDENT_NAME + ":", "").replace("<EOM>", "").strip("\n")
         return utterance
-
-
-

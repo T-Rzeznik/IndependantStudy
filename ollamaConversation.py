@@ -28,6 +28,7 @@ def main(input_file, export_file, max_utterances):
             teacher_response_message = Message(Roles.TEACHER, teacher.response(history, question, ground_truth_solution))
             history.add_message(teacher_response_message)
 
+        # Store only the final conversation history
         problem["ollama_model"] = history.to_delimited_string("<EOM>")
         conversations.append(problem)
 
