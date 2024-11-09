@@ -22,6 +22,8 @@ Context: {STUDENT_NAME} thinks their answer is correct. Only when the teacher pr
 
 (DIALOG HISTORY)
 
+Only respond to the last message
+
 Student:
 """
 
@@ -33,11 +35,12 @@ class InstructLlamaStudent(object):
     def response(self, history: History, question: str, incorrect_solution: str):
         response = ""
         messages = history.to_delimited_string("<EOM>\n\n")
+        last_message = history.messages[-1] if history.messages else None
         prompt = STUDENT_PROMPT.replace("{STUDENT PERSONA}", STUDENT_PERSONA) \
                                .replace("(STUDENT SOLUTION)", incorrect_solution) \
                                .replace("(MATH PROBLEM)", question) \
                                .replace("{STUDENT NAME}", STUDENT_NAME) \
-                               .replace("(DIALOG HISTORY)", messages)
+                               .replace("(DIALOG HISTORY)", messages) + f"\nLast message: {last_message}"
         errors_counter = 0
         done = False
         while not done:
@@ -49,5 +52,9 @@ class InstructLlamaStudent(object):
                 print(e)
                 errors_counter += 1
                 time.sleep(1)
-        utterance = response.replace("Student:", "").replace(STUDENT_NAME + ":", "").replace("<EOM>", "").strip("\n")
+        utterance = response.replace("Student:", "") \
+                           .replace(f"{STUDENT_NAME}:", "") \
+                           .replace("Roles.STUDENT:", "") \
+                           .replace("<EOM>", "") \
+                           .strip("\n")
         return utterance

@@ -25,6 +25,15 @@ def main(input_file, export_file, max_utterances):
             student_message = Message(Roles.STUDENT, student.response(history, question, incorrect_solution))
             history.add_message(student_message)
 
+            # Check if the conversation should end (student understands and correctly solves the problem)
+            if "you're right" in student_message.text.lower() or \
+               "i understand now" in student_message.text.lower() or \
+               "that makes sense" in student_message.text.lower():
+                # Add a final teacher message
+                final_message = Message(Roles.TEACHER, "Great job understanding the problem! .")
+                history.add_message(final_message)
+                break
+
             teacher_response_message = Message(Roles.TEACHER, teacher.response(history, question, ground_truth_solution))
             history.add_message(teacher_response_message)
 
